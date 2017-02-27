@@ -118,12 +118,12 @@ for typ in atomictypes
     end
 end
 
-#unsafe_atomic_cas!{T<:AtomicTypes}(x::T, cmp::T, new::T) = unsafe_atomic_cas!(convert(Ptr{T}, pointer_from_objref(x)), cmp, new)
+unsafe_atomic_cas!{T<:AtomicTypes}(x::T, cmp::T, new::T) = unsafe_atomic_cas!(convert(Ptr{T}, pointer_from_objref(x)), cmp, new)
 unsafe_atomic_cas!{T<:AtomicTypes}(x::Array{T}, idx::Integer, cmp::T, new::T) = unsafe_atomic_cas!(pointer(x, idx), cmp, new)
 
 for op in [:xchg, :add, :sub, :and, :nand, :or, :xor, :max, :min]
     fn = Symbol("unsafe_atomic_", string(op), "!")
-    #@eval $fn{T<:AtomicTypes}(x::T, val::T) = $fn(convert(Ptr{T}, pointer_from_objref(x)), val)
+    @eval $fn{T<:AtomicTypes}(x::T, val::T) = $fn(convert(Ptr{T}, pointer_from_objref(x)), val)
     @eval $fn{T<:AtomicTypes}(x::Array{T}, idx::Integer, val::T) = $fn(pointer(x, idx), val)
 end
 
