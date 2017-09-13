@@ -13,3 +13,28 @@ operations to be operated on a `Vector` without the extra indirection of a
 `Vector{Atomic}`.
 
 `UnsafeAtomics` currently supports only operations on values that are in an `Array{T:<AtomicTypes}`.
+
+## Getting Started
+
+```bash
+export JULIA_NUM_THREADS=8
+julia -e 'Pkg.clone("git@github.com:jpfairbanks/UnsafeAtomics.jl.git")'
+```
+
+## Usage
+
+```julia
+n = 10
+a = ones(Int64, n)
+# this will ensure correctness
+@threads for i in 1:1000n
+       unsafe_atomic_add!(a, mod(div(i,n), n)+1, 1)
+end
+b = ones(Int64, n)
+# this will give nondeterministic output
+@threads for i in 1:1000n
+       b[mod(div(i,n), n)+1] += 1
+end
+# if concurrently executed JULIA_NUM_THREADS > 1
+# a != b
+```
